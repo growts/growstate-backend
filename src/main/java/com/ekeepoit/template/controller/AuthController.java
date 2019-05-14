@@ -33,7 +33,7 @@ import java.util.Collections;
  * Created by rajeevkumarsingh on 02/08/17.
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -66,6 +66,9 @@ public class AuthController {
         String jwt = tokenProvider.generateToken(authentication);
         AuthResponseDTO authResponseDTO = new AuthResponseDTO();
         authResponseDTO.setToken(jwt);
+        User user = userRepository.findByUsername(authentication.getName()).get();
+        authResponseDTO.setUser(user.getUsername());
+        authResponseDTO.setRol(user.getRoles().iterator().next().getName().name());
         return ResponseEntity.ok(authResponseDTO);
     }
 
