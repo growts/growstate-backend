@@ -23,6 +23,13 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<jjwt.version>0.9.0</jjwt.version>
+		<liquibase.context>local</liquibase.context>
+		<db.hostname>localhost</db.hostname>
+		<db.port>3306</db.port>
+		<db.database>growstate</db.database>
+		<db.username>root</db.username>
+		<db.password>admin</db.password>
+		<confirmacion.remoto>false</confirmacion.remoto>
 	</properties>
 
 	<dependencies>
@@ -75,6 +82,21 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>3.6.1</version>
+				<configuration>
+					<changeLogFile>liquibase/resources/changelog-master.xml</changeLogFile>
+					<driver>com.mysql.jdbc.Driver</driver>
+					<url>jdbc:mysql://${db.hostname}:${db.port}/${db.database}?useSSL=false&amp;serverTimezone=GMT-3&amp;useLegacyDatetimeCode=false</url>
+					<username>${db.username}</username>
+					<password>${db.password}</password>
+					<contexts>${liquibase.context}</contexts>
+					<promptOnNonLocalDatabase>${confirmacion.remoto}</promptOnNonLocalDatabase>
+					<tag>${project.version}</tag>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

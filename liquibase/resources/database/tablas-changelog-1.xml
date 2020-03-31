@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet context="" author="nestevez" id="create-users">
+        <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+            <![CDATA[
+                CREATE TABLE `users` (
+                  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+                  `created_at` datetime DEFAULT NULL,
+                  `updated_at` datetime DEFAULT NULL,
+                  `email` varchar(80) DEFAULT NULL,
+                  `name` varchar(40) DEFAULT NULL,
+                  `password` varchar(100) DEFAULT NULL,
+                  `username` varchar(40) DEFAULT NULL,
+                  `password_updated` int(1) DEFAULT '0',
+                  PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=1954 DEFAULT CHARSET=utf8;
+            ]]>
+        </sql>
+        <rollback>
+            <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+                <![CDATA[
+           drop table users;
+        ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet context="" author="nestevez" id="create-roles">
+        <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+            <![CDATA[
+                CREATE TABLE `roles` (
+                  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+                  `name` varchar(60) DEFAULT NULL,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `UK_nb4h0p6txrmfc0xbrd1kglp9t` (`name`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+            ]]>
+        </sql>
+        <rollback>
+            <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+                <![CDATA[
+           delete from TRX_COMPONENT;
+        ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet context="" author="nestevez" id="user_roles">
+        <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+            <![CDATA[
+              CREATE TABLE `user_roles` (
+              `user_id` bigint(20) NOT NULL,
+              `role_id` bigint(20) NOT NULL,
+              PRIMARY KEY (`user_id`,`role_id`),
+              KEY `FKh8ciramu9cc9q3qcqiv4ue8a6` (`role_id`),
+              CONSTRAINT `FKh8ciramu9cc9q3qcqiv4ue8a6` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
+              CONSTRAINT `FKhfh9dx7w3ubf1co1vdev94g3f` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    ]]>
+        </sql>
+        <rollback>
+            <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+                <![CDATA[
+           ROLLBACK;
+        ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet context="" author="nestevez" id="insert-admin-user-2">
+        <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+            <![CDATA[
+                insert into users (created_at, updated_at, email, name, password, username, password_updated)
+                values ( now(), now(), 'admin@growts.net', 'Admin' , 'YWRtaW4=', 'Admin', 1);
+
+                commit;
+
+                insert into roles (name)
+                values ( 'ROLE_ADMIN');
+
+                commit;
+
+            ]]>
+        </sql>
+        <rollback>
+            <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+                <![CDATA[
+           ROLLBACK;
+        ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet context="" author="nestevez" id="user-roles-2">
+        <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+            <![CDATA[
+
+               insert into user_roles (user_id, role_id)
+                select (select id from users where username = 'Admin') user,
+                                        (select id from roles where name = 'ROLE_ADMIN') role
+                 from dual;
+
+                commit;
+
+            ]]>
+        </sql>
+        <rollback>
+            <sql dbms="mysql" endDelimiter=";" splitStatements="true" stripComments="true">
+                <![CDATA[
+           ROLLBACK;
+        ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
